@@ -1,3 +1,7 @@
+![Screenshot of the Program.](https://github.com/folderplug/pxAttribute/blob/main/programimg.png?raw=true)
+![Pixel Art of Kaeru from Kero Blaster.](https://github.com/folderplug/pxAttribute/blob/main/kbimg.png?raw=true)
+
+PXEDIT:
 .Pxattr are collision data files used for tilesets; it associates a tile from a tileset to a collision type. The data values vary from version, so I included info for what tiles exist in other versions.
 
 Select an attribute from the right side, and then draw with it. Undo and Redo with Ctrl-Z and Ctrl-Shift-Z if needed. Save File with Ctrl-S or from the Filebar.
@@ -15,3 +19,6 @@ Tile Resolution:
 This is a visual aspect that actually comes from pxmap files (the level format). This affects how they're rendered, pxattr files don't store this data, only pxmap files, however this is important because it sets how many pixels are per tile, if you use the wrong setting it can mess up the rendering of it in game.
 
 Anyone can modify this code if they please (with credit.)
+
+![Pitest Pixel Art.](https://github.com/folderplug/pxAttribute/blob/main/pitestimg.png?raw=true)
+![Rockfish Pixel .](https://github.com/folderplug/pxAttribute/blob/main/rfimg.png?raw=true)
