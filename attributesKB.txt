@@ -1,0 +1,103 @@
+0 Air Tile
+1 Collision Tile
+2 Entity Only Collision
+3 Player Only Collision
+4 Destructable Tile
+5 Spike
+6 Destructed Tile
+7 Top-Only Collision Tile
+8 Long Left-Facing Ceiling Slope 1
+9 Long Left-Facing Ceiling Slope 2
+10 Long Right-Facing Ceiling Slope 2
+11 Long Right-Facing Ceiling Slope 1
+12 Long Left-Facing Floor Slope 1
+13 Long Left-Facing Floor Slope 2
+14 Long Right-Facing Floor Slope 2
+15 Long Right-Facing Floor Slope 1
+16 Path Tile (Any)
+17 Path Tile (Horizontal)
+18 Path Tile (Vertical)
+19 Path Tile (Bottom Left Corner)
+20 Path Tile (Bottom Right Corner)
+21 Path Tile (Top Right Corner)
+22 Path Tile (Top Left Corner)
+23 Dot Tile 1
+24 Dot Tile 2
+25 Dot Tile 3
+26 Dot Tile 4
+27 Dot Tile 5
+28 Left Collision Tile
+29 Right Collision Tile
+30 Up Collision Tile
+31 Down Collision Tile
+32 Block Arrow Tile
+33 Left Arrow Tile
+34 Right Arrow Tile
+35 Up Arrow Tile
+36 Down Arrow Tile
+$37-39 Unknown
+40 Left-Facing Ceiling Slope
+41 Right-Facing Ceiling Slope
+42 Left-Facing Floor Slope
+43 Right-Facing Floor Slope
+44 Slope Helper (Ceiling)
+45 Slope Helper (Floor)
+$46-47 Unknown
+48 Slippery
+49 Ladder
+50 Ladder Top
+51 Player Bullets Collision
+52 Enemy Bullets Collision
+$53-55 Unknown
+56 Mud
+57 Ice
+58 Snow
+$59-63 Unknown
+64 Water
+65 Water Collision Tile
+66 Water Entity Only Collision
+67 Water Player Only Collision
+68 Water Destructable Tile
+69 Water Spike
+70 Water Destructed Tile
+71 Water Top-Only Collision Tile
+72 Water Long Left-Facing Ceiling Slope 1
+73 Water Long Left-Facing Ceiling Slope 2
+74 Water Long Right-Facing Ceiling Slope 2
+75 Water Long Right-Facing Ceiling Slope 1
+76 Water Long Left-Facing Floor Slope 1
+77 Water Long Left-Facing Floor Slope 2
+78 Water Long Right-Facing Floor Slope 2
+79 Water Long Right-Facing Floor Slope 1
+80 Water Path Tile (Any)
+81 Water Path Tile (Horizontal)
+82 Water Path Tile (Vertical)
+83 Water Path Tile (Bottom Left Corner)
+84 Water Path Tile (Bottom Right Corner)
+85 Water Path Tile (Top Right Corner)
+86 Water Path Tile (Top Left Corner)
+87 Water Dot Tile 1
+88 Water Dot Tile 2
+89 Water Dot Tile 3
+90 Water Dot Tile 4
+91 Water Dot Tile 5
+92 Water Dot Tile 6
+$93-95 Unknown
+96 Water Block Arrow Tile
+97 Water Left Arrow Tile
+98 Water Right Arrow Tile
+99 Water Up Arrow Tile
+100-Water Down Arrow Tile
+$101-103 Unknown
+104 Water Left-Facing Ceiling Slope
+105 Water Right-Facing Ceiling Slope
+106 Water Left-Facing Floor Slope
+107 Water Right-Facing Floor Slope
+108 Water Slope Helper (Ceiling)
+109 Water Slope Helper (Floor)
+$110-112 Unknown
+113 Water Ladder
+114 Water Ladder Top
+115 Water Player Bullets Collision
+116 Water Enemy Bullets Collision
+$117-255 Unknown

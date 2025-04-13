@@ -1,0 +1,26 @@
+0 Air Tile
+1 Collision Tile
+2 Entity Only Collision
+3 Player Only Collision
+4 Surface
+5 Spike
+6 Destructable Tile
+7 Top-Only Collision Tile (Starfrog)/Explosive Prevention (Rockfish)
+8 Long Left-Facing Ceiling Slope 1
+9 Long Left-Facing Ceiling Slope 2
+10 Long Right-Facing Ceiling Slope 2
+11 Long Right-Facing Ceiling Slope 1
+12 Long Left-Facing Floor Slope 1
+13 Long Left-Facing Floor Slope 2
+14 Long Right-Facing Floor Slope 2
+15 Long Right-Facing Floor Slope 1
+16 Path Tile (Any)
+17 Path Tile (Horizontal)
+18 Path Tile (Vertical)
+19 Path Tile (Bottom Left Corner)
+20 Path Tile (Bottom Right Corner)
+21 Path Tile (Top Right Corner)
+22 Path Tile (Top Left Corner)
+$23-63 Unknown
+64 - Water
+$65-255 Unknown
