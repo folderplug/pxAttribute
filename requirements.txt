@@ -1,0 +1,2 @@
+filedialpy==1.3.3
+PySDL2==0.9.16
