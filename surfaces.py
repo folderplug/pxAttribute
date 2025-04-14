@@ -7,9 +7,12 @@ class background:
     def __init__(self, destRects):
         self.img = loadImageAsSurf(paths.background)
         self.destRects = destRects
+        self.tex = createEmptyTexture()
+
         self.createBackground() #creates self.tex
 
     def createBackground(self):
+        sdl2.SDL_DestroyTexture(self.tex)
         bg = createBlankSurf(const.windowWidth, const.windowHeight) #background surf (the whole window)
         bgSizeX = 0
         bgSizeY = 0
@@ -25,6 +28,7 @@ class background:
             sdl2.SDL_FillRect(bg, rect(surf.destRect.x-2, surf.destRect.y-2, surf.destRect.w+4, surf.destRect.h+4), 0x050A08FF)
             sdl2.SDL_FillRect(bg, surf.destRect, 0x0D0F16FF)
         self.tex = convertSurfToTex(bg)
+        sdl2.SDL_FreeSurface(bg)
     
     def recreateTextures(self):
         self.createBackground()
@@ -34,15 +38,13 @@ class background:
 
 class selectionBox:
     def __init__(self):
-        self.surf = loadImageAsSurf(paths.selectBoxTexture)
-        self.tex = convertSurfToTex(self.surf)
+        surf = loadImageAsSurf(paths.selectBoxTexture)
+        self.tex = convertSurfToTex(surf)
+        sdl2.SDL_FreeSurface(surf)
 
         self.surface = None
         self.srcRect = None
         self.destRect = rect(0, 0, 18*const.globalRes, 18*const.globalRes)
-
-    def recreateTextures(self):
-        self.tex = convertSurfToTex(self.surf)
 
     def render(self):
         if self.surface is not None and const.editing:
@@ -57,17 +59,20 @@ class txt:
         self.variables = variables
         self.string = self.template.format(**self.variables)
 
+        self.tex = createEmptyTexture()
+
     def updateString(self, xoffset, yoffset):
-        self.recreateTextures()
-
-        self.srcRect = rect(0,0, self.surf.contents.w, self.surf.contents.h)
-        self.destRect = rect(xoffset, yoffset, self.surf.contents.w * const.globalRes, self.surf.contents.h * const.globalRes)
-
-    def recreateTextures(self):
         self.string = self.template.format(**self.variables)
         sdl2.sdlttf.TTF_SetFontStyle(const.fontKeroM, sdl2.sdlttf.TTF_STYLE_NORMAL)
-        self.surf = sdl2.sdlttf.TTF_RenderUTF8_Solid(const.fontKeroM, bytes(self.string, 'utf-8'), colWhite)
-        self.tex = convertSurfToTex(self.surf)
+        surf = sdl2.sdlttf.TTF_RenderUTF8_Solid(const.fontKeroM, bytes(self.string, 'utf-8'), colWhite)
+        
+        sdl2.SDL_DestroyTexture(self.tex)
+        self.tex = convertSurfToTex(surf)
+
+        self.srcRect = rect(0,0, surf.contents.w, surf.contents.h)
+        self.destRect = rect(xoffset, yoffset, surf.contents.w * const.globalRes, surf.contents.h * const.globalRes)
+        sdl2.SDL_FreeSurface(surf)
+
 
     def render(self):
         const.setViewport()
@@ -85,6 +90,8 @@ class attributeSurface:
     def __init__(self, attrPath):
         self.attrPath = attrPath
         self.attrSurf = loadImageAsSurf(attrPath)
+        self.tex = createEmptyTexture()
+
         self.srcRect = rect(0, 0, 256, 256)
 
         self.mouseHover = False
@@ -105,6 +112,7 @@ class attributeSurface:
         )
 
     def updateTex(self):
+        sdl2.SDL_DestroyTexture(self.tex)
         self.tex = convertSurfToTex(self.attrSurf)
 
     def handleCursorIntersect(self):
@@ -138,13 +146,18 @@ class attributeSurface:
        
 class attributeInfoDialogue:
     def __init__(self):
-       self.attributeInfoImg = loadImageAsSurf(paths.infoDialogueTexture)
+       attributeInfoImgSurf = loadImageAsSurf(paths.infoDialogueTexture)
+       self.attributeInfoImgTex = convertSurfToTex(attributeInfoImgSurf)
+       sdl2.SDL_FreeSurface(attributeInfoImgSurf)
+
+       self.attributeInfoTex = createEmptyTexture()
 
     def updateTexture(self, attribute):
-        bottomText = generateText(findAttributeText(attribute), sdl2.SDL_Color(201, 200, 206), 'normal')
-        headerText = generateText('Attribute: [{attr}]'.format(attr=attribute), sdl2.SDL_Color(201, 200, 206), 'normal')
-        self.infoTexWidth = max(bottomText.contents.w + 6, headerText.contents.w + 7)
+        bottomTextSurf = generateText(findAttributeText(attribute), sdl2.SDL_Color(201, 200, 206), 'normal')
+        headerTextSurf = generateText('Attribute: [{attr}]'.format(attr=attribute), sdl2.SDL_Color(201, 200, 206), 'normal')
+        self.infoTexWidth = max(bottomTextSurf.contents.w + 6, headerTextSurf.contents.w + 7)
 
+        sdl2.SDL_DestroyTexture(self.attributeInfoTex)
         self.attributeInfoTex = sdl2.SDL_CreateTexture(
             const.renderer.sdlrenderer,
             sdl2.SDL_PIXELFORMAT_RGBA8888,
@@ -161,15 +174,19 @@ class attributeInfoDialogue:
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 19, 18, 22, 255)
         sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 3, 14, self.infoTexWidth-3, 14)
 
-        infoTex = convertSurfToTex(self.attributeInfoImg)
-        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, infoTex, rect(0, 0, 4, 32), rect(0, 0, 4, 32))
-        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, infoTex, rect(4, 0, 4, 32), rect(self.infoTexWidth - 4, 0, 4, 32))
+        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, self.attributeInfoImgTex, rect(0, 0, 4, 32), rect(0, 0, 4, 32))
+        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, self.attributeInfoImgTex, rect(4, 0, 4, 32), rect(self.infoTexWidth - 4, 0, 4, 32))
 
-        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, convertSurfToTex(headerText), None, rect(4, 0, headerText.contents.w, 12))
-        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, convertSurfToTex(bottomText), None, rect(4, 16, bottomText.contents.w, 12))
 
-        sdl2.SDL_FreeSurface(headerText)
-        sdl2.SDL_FreeSurface(bottomText)
+
+        bottomTextTex = convertSurfToTex(bottomTextSurf)
+        headerTextTex = convertSurfToTex(headerTextSurf)
+
+        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, headerTextTex, None, rect(4, 0, headerTextSurf.contents.w, 12))
+        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, bottomTextTex, None, rect(4, 16, bottomTextSurf.contents.w, 12))
+
+        sdl2.SDL_FreeSurface(headerTextSurf)
+        sdl2.SDL_FreeSurface(bottomTextSurf)
         const.setViewport()
 
     def render(self):
@@ -184,14 +201,17 @@ class mptSurface:
         self.path = path
         self.width = 16
         self.height = 16
+
+        self.mptSurf = createBlankSurf(0, 0)
+        # self.attributeSurf = createBlankSurf(0, 0)
+
+        self.mptTex = createEmptyTexture()
+        self.tileTex = createEmptyTexture()
         self.createNoPxattr()
         
         self.fileSelected = False
         self.selectedTile = (0, 0)
         
-        #self.mptTex
-        #self.tileTex
-
         self.width = 16
         self.height = 16
 
@@ -226,15 +246,13 @@ class mptSurface:
             const.updateWindowSize(self.destRect.w, self.destRect.h, 256 * const.globalRes)
 
         if os.path.exists(self.path) and self.path[-4:] == '.png' or self.path[-4:] == '.bmp' and self.useImage:
+            sdl2.SDL_FreeSurface(surfMpt.mptSurf)
             surfMpt.mptSurf = loadImageAsSurf(self.path)
-            surfMpt.updateMptTex()
-            
+            surfMpt.updateMptTex() 
         else:
             surfMpt.createNoImage()
         
-
         #we have to move surfaces to adjust for new mpt size
-
         surfAttr.createDestRect(self.destRect.x + self.destRect.w)
         txtMpt.updateString(self.destRect.x, const.windowHeight - (16*const.globalRes))
         if txtMpt.destRect.x + txtMpt.destRect.w > surfAttr.destRect.x:
@@ -257,6 +275,7 @@ class mptSurface:
         mouse.resetSurfaces()
 
     def createNoImage(self): #no image
+        sdl2.SDL_DestroyTexture(self.mptTex)
         self.mptTex = sdl2.SDL_CreateTexture(
                                 const.renderer.sdlrenderer,
                                 sdl2.SDL_PIXELFORMAT_RGB888,
@@ -277,6 +296,7 @@ class mptSurface:
         )
         #mptTex is replaced with this so it doesnt really matter.
         #for editing window size:
+        sdl2.SDL_DestroyTexture(self.mptTex)
         self.mptTex = sdl2.SDL_CreateTexture(
                                 const.renderer.sdlrenderer,
                                 sdl2.SDL_PIXELFORMAT_RGB888,
@@ -306,8 +326,7 @@ class mptSurface:
         sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, line2, None, rect(6, 31, 112, 12))
         const.setViewport()
         #creating placeholders
-        self.mptSurf = convertTexToSurf(self.mptTex, 0, 0, sdl2.SDL_PIXELFORMAT_UNKNOWN)
-        self.tileTex = sdl2.SDL_CreateTexture(const.renderer.sdlrenderer, sdl2.SDL_PIXELFORMAT_UNKNOWN, sdl2.SDL_TEXTUREACCESS_TARGET, 0, 0)
+
         self.tileSurf = createBlankSurf(0, 0)
         self.tileSrcRect = rect(0, 0, 0, 0)
 
@@ -332,29 +351,30 @@ class mptSurface:
         )
 
     def updateMptTex(self):
+        sdl2.SDL_DestroyTexture(self.mptTex)
         self.mptTex = convertSurfToTex(self.mptSurf)
 
     def updateTileTex(self):
+        sdl2.SDL_DestroyTexture(self.tileTex)
         self.tileTex = convertSurfToTex(self.tileSurf)
     
     def generateTiles(self, attributesArray): #assigns self.attributeTiles
         xPos = 0
         yPos = 0
-        blank = createBlankSurf(self.width * const.pxRes, self.height * const.pxRes)
+        sdl2.SDL_FreeSurface(self.tileSurf)
+        self.tileSurf = blank = createBlankSurf(self.width * const.pxRes, self.height * const.pxRes)
         #resolution only matters to surface, not blitting
         for row in attributesArray:
             for column in row:
                 sdl2.SDL_BlitSurface(
                     self.attributeSurf,
                     rect((column % 16) * 16, (column // 16) * 16, 16, 16),
-                    blank,
+                    self.tileSurf,
                     rect(xPos, yPos, 16, 16)
                 )
                 xPos += 16
             xPos = 0
             yPos += 16
-        self.tileSurf = blank
-        # const.editing = True #before this no tiles even existed so this is to ensure the program is in a state where you can actually edit stuff.
 
     def handleCursorIntersect(self):
         toUpdateRender = False
@@ -406,6 +426,8 @@ class mptSurface:
            updateRender(const.surfaceFunctions)
 
     def recreateTextures(self):
+        sdl2.SDL_DestroyTexture(self.mptTex)
+        sdl2.SDL_DestroyTexture(self.tileTex)
         self.updateMptTex()
         self.updateTileTex()
 
@@ -461,7 +483,8 @@ surfAttr.attrSrcRect = rect(0, 0, 256, 256)
 surfAttr.updateTex()
 surfAttr.textOffset = surfAttr.destRect.x
 
-surfMpt.attributeSurf = surfAttr.attrSurf
+surfMpt.attributeSurf = createBlankSurf(256, 256)
+
 const.updateWindowSize(surfMpt.destRect.w, surfMpt.destRect.h, surfAttr.destRect.w)
 bg = background([surfMpt, surfAttr])
 

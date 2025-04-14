@@ -46,12 +46,12 @@ class option():
         const.renderer.present()
     
     def createOptionTexture(self):
-        textNormal = generateText(self.text, sdl2.SDL_Color(74, 85, 84), 'bold')
-        textHighlighted = generateText(self.text, sdl2.SDL_Color(77, 104, 82), 'bold')
-        textClicked = generateText(self.text, sdl2.SDL_Color(51, 71, 66), 'bold')
+        textNormalSurf = generateText(self.text, sdl2.SDL_Color(74, 85, 84), 'bold')
+        textHighlightedSurf = generateText(self.text, sdl2.SDL_Color(77, 104, 82), 'bold')
+        textClickedSurf = generateText(self.text, sdl2.SDL_Color(51, 71, 66), 'bold')
 
-        textWidth = textNormal.contents.w
-        self.optionWidth = textNormal.contents.w + 20
+        textWidth = textNormalSurf.contents.w
+        self.optionWidth = textNormalSurf.contents.w + 20
         self.optionTex = sdl2.SDL_CreateTexture(
                 const.renderer.sdlrenderer,
                 sdl2.SDL_PIXELFORMAT_RGB888,
@@ -95,10 +95,17 @@ class option():
         #outline
         xOffset = 0
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 58, 73, 112, 255)
-        for text in [textNormal, textHighlighted, textClicked]:
-            sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, convertSurfToTex(text), None, rect(xOffset + 3, 2, textWidth, 12))
+        for text in [textNormalSurf, textHighlightedSurf, textClickedSurf]:
+            tex = convertSurfToTex(text)
+            sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, tex, None, rect(xOffset + 3, 2, textWidth, 12))
             sdl2.SDL_RenderDrawRect(const.renderer.sdlrenderer, rect(xOffset-1, 0, self.optionWidth, 20))
+
+            sdl2.SDL_DestroyTexture(tex)
             xOffset += self.optionWidth
+        
+        sdl2.SDL_FreeSurface(textNormalSurf)
+        sdl2.SDL_FreeSurface(textHighlightedSurf)
+        sdl2.SDL_FreeSurface(textClickedSurf)
         const.setViewport()
         self.normalSrcRect = rect(0, 0, self.optionWidth, 20)
         self.highlightedSrcRect = rect(self.optionWidth, 0, self.optionWidth, 20)

@@ -8,7 +8,9 @@ os.environ["PYSDL2_DLL_PATH"] = "./"
 #make variation of window that shows text only.
 #add blinking cursor animation for text editing
 
-buttonsTexture = convertSurfToTex(loadImageAsSurf(paths.buttons))
+buttonsSurf = loadImageAsSurf(paths.buttons)
+buttonsTexture = convertSurfToTex(buttonsSurf)
+sdl2.SDL_FreeSurface(buttonsSurf)
 
 class inputField: #contains the header for field section and the attributes
     #type 0 = int, type 1 = directory, type 2 = bool, type 3 = string, type 4 = file path
@@ -18,6 +20,8 @@ class inputField: #contains the header for field section and the attributes
         self.realInput = defaultInput
         self.defaultInput = self.encode(defaultInput)
         self.userInput = ''
+
+        self.textTex = createEmptyTexture()
         
         self.active = False #if active then render highlighted
 
@@ -44,6 +48,8 @@ class inputField: #contains the header for field section and the attributes
            typeInput = self.defaultInput
         elif typeInput == 1:
            typeInput = self.userInput
+        
+        sdl2.SDL_DestroyTexture(self.textTex)
         if len(str(typeInput)) == 0: #No text at all, so don't generate text texture because it will create a null pointer.
             self.textTex = sdl2.SDL_CreateTexture(const.renderer.sdlrenderer,
                                     sdl2.SDL_PIXELFORMAT_RGBA8888,
@@ -52,16 +58,16 @@ class inputField: #contains the header for field section and the attributes
                                     12)
             self.textSrcRect = rect(0, 0, 10, 12)
             self.textDestRect = rect(self.textXPos, self.textYPos, 10, 12)
-            dontConvertToTex = True
         else: #generate text because it WON'T result in a null pointer
-            self.textTex = generateText(typeInput, color, 'normal')
-            if self.textTex.contents.w <= 46: #text width is less than 46 means it fits into the box so it's not cropped
-                self.textSrcRect = rect(0, 0, self.textTex.contents.w, 12)
-                self.textDestRect = rect(self.textXPos, self.textYPos, self.textTex.contents.w, 12)
+            textSurf = generateText(typeInput, color, 'normal')
+            if textSurf.contents.w <= 46: #text width is less than 46 means it fits into the box so it's not cropped
+                self.textSrcRect = rect(0, 0, textSurf.contents.w, 12)
+                self.textDestRect = rect(self.textXPos, self.textYPos, textSurf.contents.w, 12)
             else: #text is too long to fit in box so it's cropped
-                self.textSrcRect = rect(self.textTex.contents.w - 46, 0, self.textTex.contents.w, 12)
+                self.textSrcRect = rect(textSurf.contents.w - 46, 0, textSurf.contents.w, 12)
                 self.textDestRect = rect(self.textXPos - 2, self.textYPos, 46, 12)
-            self.textTex = convertSurfToTex(self.textTex)
+            self.textTex = convertSurfToTex(textSurf)
+            sdl2.SDL_FreeSurface(textSurf)
 
     def disable(self):
         self.disabled = True
@@ -112,6 +118,21 @@ class miniWindow:
         const.surfaceFunctions.remove(self)
         mouse.resetSurfaces()
 
+        sdl2.SDL_DestroyTexture(self.windowTex)
+
+
+        sdl2.SDL_DestroyTexture(self.inputFieldNormalTex)
+        sdl2.SDL_DestroyTexture(self.inputFieldHighlightedTex)
+
+        sdl2.SDL_DestroyTexture(self.inputFieldButtonsTex)
+        sdl2.SDL_DestroyTexture(self.inputFieldTextTex)
+
+        for tex in self.buttons: #tex is a tuple, [1] is texture index
+            sdl2.SDL_DestroyTexture(tex[1])
+
+        for entry in self.inputFields:
+            for tex in entry.fieldAreaTextTextures:
+                sdl2.SDL_DestroyTexture(tex)
 
         # for inputField in self.inputFields:
         #     for field in inputField.inputFields:
@@ -133,31 +154,36 @@ class miniWindow:
 
         textColor = sdl2.SDL_Color(207, 219, 199)
 
-        self.headerTextTex = generateText(self.headerText, textColor, 'bold')
-        headerWidth = self.headerTextTex.contents.w * 2 #sprite is 2 times big.
-        headerHeight = self.headerTextTex.contents.h * 2
+        self.headerTextSurf = generateText(self.headerText, textColor, 'bold')
+        headerWidth = self.headerTextSurf.contents.w * 2 #sprite is 2 times big.
+        headerHeight = self.headerTextSurf.contents.h * 2
+
         windowHeaderLength = headerWidth
-        self.headerTextTex = convertSurfToTex(self.headerTextTex)
+        self.headerTextTex = convertSurfToTex(self.headerTextSurf)
+        sdl2.SDL_FreeSurface(self.headerTextSurf)
 
 
         self.height = 29 #header height
         #self.height accumulates height through this loop:
         for entry in self.inputFields:
-            entryTextTex = generateText(entry.headerText, textColor, 'bold')
-            if entryTextTex.contents.w > inputStarterHeaderLength:
-                inputStarterHeaderLength = entryTextTex.contents.w
+            entryTextSurf = generateText(entry.headerText, textColor, 'bold')
+            if entryTextSurf.contents.w > inputStarterHeaderLength:
+                inputStarterHeaderLength = entryTextSurf.contents.w
             self.height += 18 #input field header height
-            entryTextTex = convertSurfToTex(entryTextTex)
+            entryTextTex = convertSurfToTex(entryTextSurf)
+            sdl2.SDL_FreeSurface(entryTextSurf)
+
             self.fieldHeaderTextTextures.append(entryTextTex)
-            
             for attribute in entry.inputFields:
-                attributeTextTex = generateText(attribute.text, textColor, 'bold')
-                if attributeTextTex.contents.w + 67 > inputFieldTextLength:
-                    inputFieldTextLength = attributeTextTex.contents.w + 67
+                attributeTextSurf = generateText(attribute.text, textColor, 'bold')
+                if attributeTextSurf.contents.w + 67 > inputFieldTextLength:
+                    inputFieldTextLength = attributeTextSurf.contents.w + 67
                 self.height += 17 #input field height
 
-                attributeTextTex = convertSurfToTex(attributeTextTex)
+                attributeTextTex = convertSurfToTex(attributeTextSurf)
                 entry.fieldAreaTextTextures.append(attributeTextTex)
+                sdl2.SDL_FreeSurface(attributeTextSurf)
+
             self.height += 17 #height until next header.
         self.height += 30 #height to botom.
                 
@@ -236,6 +262,9 @@ class miniWindow:
             textYPos += 16
             fieldAreaIndex = 0
             fieldHeaderIndex += 1
+
+        for tex in self.fieldHeaderTextTextures:
+            sdl2.SDL_DestroyTexture(tex)
             
         #BUTTONS:
 
@@ -321,13 +350,15 @@ class miniWindow:
 
     def drawButton(self, text):
         #texture is twice as big for both normalTex and pressedTex
-        textTex = generateText(text, sdl2.SDL_Color(207, 219, 199), 'bold')
-        width = textTex.contents.w + 16
+        width = ctypes.c_int()
+        sdl2.sdlttf.TTF_SizeText(const.fontKeroM, bytes(text, 'utf-8'), width, None)  
+        width = width.value + 16
         tex = sdl2.SDL_CreateTexture(const.renderer.sdlrenderer,
                                sdl2.SDL_PIXELFORMAT_RGB888,
                                sdl2.SDL_TEXTUREACCESS_TARGET,
                                width * 2,
                                16)
+        
         def drawButtonTex(xPos, bgColor, shineColor, shadeColor, textColor): #*bgColor
             sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, *bgColor, 255)
             sdl2.SDL_RenderFillRect(const.renderer.sdlrenderer, rect(xPos, 0, width, 16))
@@ -343,8 +374,11 @@ class miniWindow:
             sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 51, 71, 66, 255)
             sdl2.SDL_RenderDrawRect(const.renderer.sdlrenderer, rect(xPos, 0, width, 16))
 
-            textTex = generateText(text, textColor, 'bold')
-            sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, convertSurfToTex(textTex), None, rect(xPos + 8, 1, textTex.contents.w, textTex.contents.h))
+            textSurf = generateText(text, textColor, 'bold')
+            textTex = convertSurfToTex(textSurf)
+            sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, textTex, None, rect(xPos + 8, 1, textSurf.contents.w, textSurf.contents.h))
+            sdl2.SDL_FreeSurface(textSurf)
+            sdl2.SDL_DestroyTexture(textTex)
 
         sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, tex)
         drawButtonTex(0, (105, 130, 109), (148, 176, 131), (72, 98, 99), sdl2.SDL_Color(207, 219, 199))
@@ -352,17 +386,6 @@ class miniWindow:
             
         normalRect = rect(0, 0, width, 16)
         pressedRect = rect(width, 0, width, 16)
-        # if type == 0:
-        #     col0 = (105, 130, 109)
-        #     col1 = (148, 176, 131)
-        #     col2 = (72, 98, 99)
-        #     col3 = sdl2.SDL_Color(207, 219, 199) #text
-        # elif type == 1:
-        #     col0 = (77, 104, 82)
-        #     col1 = (68, 85, 101)
-        #     col2 = (105, 130, 109)
-        #     col3 = sdl2.SDL_Color(51, 71, 66) #text
-
         return tex, normalRect, pressedRect
 
     def createInputFieldTextures(self):
@@ -398,17 +421,9 @@ class miniWindow:
                 52,
                 16
         )
-        self.inputFieldDisabledTex = sdl2.SDL_CreateTexture(
-                const.renderer.sdlrenderer,
-                sdl2.SDL_PIXELFORMAT_RGB888,
-                sdl2.SDL_TEXTUREACCESS_TARGET,
-                52,
-                16
-        )
 
         drawInputField(self.inputFieldNormalTex, (77, 104, 82), (68, 85, 101), (105, 130, 109), (51, 71, 66))
         drawInputField(self.inputFieldHighlightedTex, (105, 130, 109), (72, 98, 99), (148, 176, 131), (51, 71, 66))
-        drawInputField(self.inputFieldDisabledTex, (67, 81, 74), (67, 81, 74), (83, 101, 93), (50, 61, 61))
 
     def moveDestRect(self):
         """ Moves the rectangle while dragging based on mouse position. """

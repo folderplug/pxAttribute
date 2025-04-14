@@ -26,7 +26,6 @@ def loadImageAsSurf(ipath):
 def createBlankSurf(width, height):
     return sdl2.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, sdl2.SDL_PIXELFORMAT_ABGR32) 
 
-
 def convertSurfToTex(surf):
     return sdl2.SDL_CreateTextureFromSurface(const.renderer.sdlrenderer, surf)
 
@@ -40,6 +39,9 @@ def convertTexToSurf(texture, width, height, pFormat):
 
     sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, None)
     return surf
+
+def createEmptyTexture():
+    return sdl2.SDL_CreateTexture(const.renderer.sdlrenderer, sdl2.SDL_PIXELFORMAT_UNKNOWN, sdl2.SDL_TEXTUREACCESS_STATIC, 0, 0)
 
 class filePaths:
     def __init__(self):
@@ -109,7 +111,6 @@ class settings:
 
         sdl2.SDL_SetWindowSize(self.window.window, self.windowWidth, self.windowHeight)
         sdl2.SDL_RenderSetLogicalSize(self.renderer.sdlrenderer, self.windowWidth, self.windowHeight)
-        recreateTextures(self.surfaceFunctions)
         self.setViewport()
 
     def setViewport(self):

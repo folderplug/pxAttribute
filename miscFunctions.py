@@ -35,16 +35,14 @@ def undo():
 
 def updateAttributesTexture():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    sdl2.SDL_FreeSurface(surfAttr.attrSurf)
     if pxattr.version == 0:
         surfAttr.attrSurf = loadImageAsSurf(paths.attributesTextureKB)
-        surfMpt.attributeSurf = loadImageAsSurf(paths.attributesTextureKB)
-
     elif pxattr.version == 1:
         surfAttr.attrSurf = loadImageAsSurf(paths.attributesTexturePT)
-        surfMpt.attributeSurf = loadImageAsSurf(paths.attributesTexturePT)
     elif pxattr.version == 2:
         surfAttr.attrSurf = loadImageAsSurf(paths.attributesTexture2012)
-        surfMpt.attributeSurf = loadImageAsSurf(paths.attributesTexture2012)
+    sdl2.SDL_BlitSurface(surfAttr.attrSurf, None, surfMpt.attributeSurf, None)
     surfAttr.updateTex()
 
 def openFile():
@@ -62,6 +60,7 @@ def openFile():
     else:
         mouse.history.clear()
         mouse.historyIndex = -1
+
         pxattr.pxOpen(path)
         pxattr.path = path
         pxattr.attributeArrayEdit = pxattr.attributeArray
@@ -154,6 +153,7 @@ def promptEditPxattr():
 def processReplaceImage(inputData): #[path]
     surfMpt.path = inputData[0]
     if os.path.exists(surfMpt.path) and surfMpt.path[-4:] == '.png' or surfMpt.path[-4:] == '.bmp':
+        sdl2.SDL_FreeSurface(surfMpt.mptSurf)
         surfMpt.mptSurf = loadImageAsSurf(surfMpt.path)
         surfMpt.updateMptTex()
         updateRender(const.surfaceFunctions)
