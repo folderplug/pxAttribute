@@ -1,24 +1,20 @@
 ![Screenshot of the Program.](https://github.com/folderplug/pxAttribute/blob/main/programimg.png?raw=true)
 ![Pixel Art of Kaeru from Kero Blaster.](https://github.com/folderplug/pxAttribute/blob/main/kbimg.png?raw=true)
 
-PXEDIT:
-.Pxattr are collision data files used for tilesets; it associates a tile from a tileset to a collision type. The data values vary from version, so I included info for what tiles exist in other versions.
+# pxAttribute
+pxAttribute is an editor designed to edit the data of .pxattr file types. pxattr files are collision data that associate a tile from a tilesheet to an specific attribute. They have been used for Pixel's newer games (ranging from around 2012 to present day.) This editor is designed to both edit, and create pxattr files.
 
-Select an attribute from the right side, and then draw with it. Undo and Redo with Ctrl-Z and Ctrl-Shift-Z if needed. Save File with Ctrl-S or from the Filebar.
-Edit file data from Filebar.
+## Using pxAttribute:
+pxAttribute has basic editing tools featuring undoing an action, and redoing one (ctrl z, ctrl shift z). Besides the obvious, it also lets you display any tile resolution. Tile Resolution is actually set in the level format (pxmap), so it's a purely visual change. The reason tile resolution is important is because it sets the amount of pixels per tile, without the right resolution, tiles will be messed up. Games like Rockfish and Pitest use this (and Kero Blaster as well, but it is unused), so you should make sure the level has the right resolution before you start whatever that it is that you're doing.
 
-Pxattr Info:
-Compression has existed since post 2012 (Kero Blaster), but it has been unused. It is used in Pitest, for both the level files and the pxattr files.
-The compression is RLE compression (storing a tile, and then the amount of times that tile gets repeated.)
+## Pxattr Info:
+Pxattr has several aspects to them besides just hosting the attributes.
+* Header: This is a feature only existing for post 2012 versions of the format. It defines what game the file is for. You can set it (automatically) by setting the "Version" value to one of the values listed when saving or  editing the file data.
+* Width/Height: uint16 width and height values, for the dimensions of the format. (Having uneven dimensions could cause issues when changing the tile resolution, creating artifacts like half-tiles.)
+* Compression: an RLE compression format for storing the attribute data, existing for post 2012 versions of the format. 0 is for no compression, 1 is for horizontal compression, and 2 is for vertical compression.
+* Attribute Data: Attributes, and how they work change from game to game, the code for them is handled by the game code, so when editing specific versions, some tiles do not have graphics for themselves, however you can still view the attribute value by hovering over it while editing.
 
-Version:
-Games like Kero Blaster and Pitest do not have the same header, by changing this it determines if the game engine will be able to read the pxattr file. If you use the wrong version in the wrong game, it will not work. Make sure to set the version to the correct Value.
-...Interestingly, Pre-2012 (Rockfish and early versions of Starfrog) don't have headers, this is compromised by the program reading the width and height (which are at the start of the file), and then seeing if the total size matches the file length.
-
-Tile Resolution:
-This is a visual aspect that actually comes from pxmap files (the level format). This affects how they're rendered, pxattr files don't store this data, only pxmap files, however this is important because it sets how many pixels are per tile, if you use the wrong setting it can mess up the rendering of it in game.
-
-Anyone can modify this code if they please (with credit.)
+Anyone has permission to modify this software's code (with credit.)
 
 ![Pitest Pixel Art.](https://github.com/folderplug/pxAttribute/blob/main/pitestimg.png?raw=true)
 ![Rockfish Pixel .](https://github.com/folderplug/pxAttribute/blob/main/rfimg.png?raw=true)
