@@ -5,7 +5,7 @@
 pxAttribute is an editor designed to edit the data of .pxattr file types. pxattr files are collision data that associate a tile from a tilesheet to an specific attribute. They have been used for Pixel's newer games (ranging from around 2012 to present day.) This editor is designed to both edit, and create pxattr files.
 
 ## Using pxAttribute:
-pxAttribute has basic editing tools featuring undoing an action, and redoing one (ctrl z, ctrl shift z). Besides the obvious, it also lets you display any tile resolution. Tile Resolution is actually set in the level format (pxmap), so it's a purely visual change. The reason tile resolution is important is because it sets the amount of pixels per tile, without the right resolution, tiles will be messed up. Games like Rockfish and Pitest use this (and Kero Blaster as well, but it is unused), so you should make sure the level has the right resolution before you start whatever that it is that you're doing.
+pxAttribute has basic editing tools featuring: Opening pxattr files, creating pxattr files, editing pxattr files, undoing an action, and redoing one (ctrl z, ctrl shift z). Besides the obvious, it also lets you display any tile resolution. Tile resolution is actually set in the level format (pxpack), so it's a purely visual change. The reason tile resolution is important is because it sets the amount of pixels per tile, without the right resolution, tiles will be messed up. Games like Rockfish and Pitest use this (and Kero Blaster as well, but it is unused), so you should make sure the level has the right resolution before you start whatever that it is that you're doing.
 
 ## Pxattr Info:
 Pxattr has several aspects to them besides just hosting the attributes.
