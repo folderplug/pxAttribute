@@ -28,23 +28,6 @@ class option():
         self.clicked = False
         self.mouseHover = False #for when option is clicked, so it can highlight others.
 
-    def createToScreen(self):
-        self.optionTex = sdl2.SDL_CreateTexture(
-            const.renderer.sdlrenderer,
-            sdl2.SDL_PIXELFORMAT_RGB888,
-            sdl2.SDL_TEXTUREACCESS_TARGET,
-            self.optionWidth * 3,
-            20
-        )
-        sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, self.optionTex)
-        sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 58, 58, 58, 255)
-        sdl2.SDL_RenderFillRect(const.renderer.sdlrenderer, None)
-        const.setViewport()
-        sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 0, 0, 0, 255)
-        const.renderer.clear()
-        sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, self.optionTex, None, rect(42, 80, 40, 23))
-        const.renderer.present()
-    
     def createOptionTexture(self):
         textNormalSurf = generateText(self.text, sdl2.SDL_Color(74, 85, 84), 'bold')
         textHighlightedSurf = generateText(self.text, sdl2.SDL_Color(77, 104, 82), 'bold')
@@ -141,51 +124,70 @@ class option():
                 self.dropdownWidth,
                 self.dropdownHeight 
         )
+        dropdownButtonsTex = sdl2.SDL_CreateTexture(
+                const.renderer.sdlrenderer,
+                sdl2.SDL_PIXELFORMAT_RGB888,
+                sdl2.SDL_TEXTUREACCESS_TARGET,
+                self.dropdownWidth,
+                40
+        )
 
-        #Normal Dropdown:
-        sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, self.dropdownNormalTex)
+        #in previous versions i render copied using a texture as both the source texture, and destination texture.
+        #and I'm pretty sure that that caused memory issues, and corrupted the texture, so the solution is to make
+        #a third texture to copy from.
+
+        yPos = 0 
+
+        #Normal Dropdown Button:
+        sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, dropdownButtonsTex)
         #fill background
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 77, 104, 82, 255)
         sdl2.SDL_RenderFillRect(const.renderer.sdlrenderer, None)
         #drawing single button (to be copied later on for all entries); draw outline
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 51, 71, 66, 255)
-        sdl2.SDL_RenderDrawRect(const.renderer.sdlrenderer, rect(1, 0, self.dropdownWidth - 2, 20))
+        sdl2.SDL_RenderDrawRect(const.renderer.sdlrenderer, rect(1, yPos, self.dropdownWidth - 2, 20))
         #button shine
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 105, 130, 109, 255)
-        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 2, 19, self.dropdownWidth - 3, 19)
+        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 2, yPos + 19, self.dropdownWidth - 3, yPos + 19)
              
-        #Highlighted Dropdown:
-        sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, self.dropdownHighlightedTex)
+        yPos += 20
 
+        #Highlighted Dropdown Button:
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 105, 147, 109, 255)
-        sdl2.SDL_RenderFillRect(const.renderer.sdlrenderer, rect(0, 0, self.dropdownWidth, 20))
+        sdl2.SDL_RenderFillRect(const.renderer.sdlrenderer, rect(0, yPos, self.dropdownWidth, 20))
         #emboss (shine, top, left)
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 148, 176, 131, 255)
-        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 0, 0, self.dropdownWidth - 3, 0)
-        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 1, 0, 1, 18)
+        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 0, yPos, self.dropdownWidth - 3, yPos)
+        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 1, yPos, 1, yPos + 18)
         #emboss (dark, bottom, right)
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 74, 85, 84, 255)
-        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 2, 19, self.dropdownWidth - 2, 19)
-        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, self.dropdownWidth - 2, 1, self.dropdownWidth - 2, 19)
+        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, 2, yPos + 19, self.dropdownWidth - 2, yPos + 19)
+        sdl2.SDL_RenderDrawLine(const.renderer.sdlrenderer, self.dropdownWidth - 2, yPos + 1, self.dropdownWidth - 2, yPos + 19)
 
         #draw button, and then copy it throughout surface.
-        def copyButtonThroughoutSurface(yOffsetAmount, tex, lst):
-            sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, tex)
-            srcRect = rect(0, 0, self.dropdownWidth, 20)
+        def copyButtonThroughoutSurface(yOffsetAmount, srcTex, destTex, lst):
+            sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, destTex)
+            srcRect = rect(0, yOffsetAmount, self.dropdownWidth, 20)
             yOffset = 0
             for option in lst:
-                sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, tex, srcRect, rect(0, yOffset, self.dropdownWidth, 20))
-                yOffset += yOffsetAmount
+                sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, srcTex, srcRect, rect(0, yOffset, self.dropdownWidth, 20))
+                yOffset += 20
             yOffset = 0
             for option in lst:
-                sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, convertSurfToTex(option), None, rect(3, yOffset + 2, option.contents.w, 12))
-                yOffset += yOffsetAmount
+                textTex = convertSurfToTex(option)
+
+                sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, textTex, None, rect(3, yOffset + 2, option.contents.w, 12))
+                sdl2.SDL_DestroyTexture(textTex)
+                sdl2.SDL_FreeSurface(option)
+                yOffset += 20
             #Outline
             sdl2.SDL_RenderDrawRect(const.renderer.sdlrenderer, rect(0, -1, self.dropdownWidth, self.dropdownHeight+1))
 
         sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 58, 73, 112, 255)
-        copyButtonThroughoutSurface(20, self.dropdownNormalTex, dropdownTextTexturesNormal)
-        copyButtonThroughoutSurface(20, self.dropdownHighlightedTex, dropdownTextTexturesHighlighted)
+        copyButtonThroughoutSurface(0, dropdownButtonsTex, self.dropdownNormalTex, dropdownTextTexturesNormal)
+        copyButtonThroughoutSurface(20, dropdownButtonsTex, self.dropdownHighlightedTex, dropdownTextTexturesHighlighted)
+        sdl2.SDL_DestroyTexture(dropdownButtonsTex)
+        del dropdownButtonsTex
 
 optionFile = option('FILE', ['Open', 'New', 'Save', 'Save As...', 'File Info'], [openFile, promptCreatePxattr, saveFile, promptSaveAs, fileInfo])
 optionEdit = option('EDIT', ['Undo', 'Redo', 'Replace Image', 'File Data'], [undo, redo, promptReplaceImage, promptEditPxattr])

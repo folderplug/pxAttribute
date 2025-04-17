@@ -127,7 +127,7 @@ class miniWindow:
         sdl2.SDL_DestroyTexture(self.inputFieldButtonsTex)
         sdl2.SDL_DestroyTexture(self.inputFieldTextTex)
 
-        for tex in self.buttons: #tex is a tuple, [1] is texture index
+        for tex in self.buttons[1:]: #tex is a tuple, [1] is texture index. Also index 0 is x button, and destroying it would be stupid.
             sdl2.SDL_DestroyTexture(tex[1])
 
         for entry in self.inputFields:
@@ -318,6 +318,7 @@ class miniWindow:
         
         sdl2.SDL_SetRenderTarget(const.renderer.sdlrenderer, self.windowTex)
         #xbutton is special.
+        print(type(buttonsTexture))
         sdl2.SDL_RenderCopy(const.renderer.sdlrenderer, self.buttons[0][1], self.buttons[0][2], self.buttons[0][0])
         offset = self.width - 3
         for tup in self.buttons[1:]:
@@ -461,7 +462,6 @@ class miniWindow:
         elif self.clickedOnButton and mouse.clickedOnRelease:
             self.clickedOnButton = False
             mouse.clickedOnRelease = False
-            #x button
             for index, tup in enumerate(self.buttons): #(buttonDestRect, buttonTex, buttonNormalRect, buttonPressedRect, function)
                 if tup[0].x <= mouseX <= tup[0].x + tup[0].w and tup[0].y <= mouseY <= tup[0].y + tup[0].h and index == self.buttonIndex:
                     tup[4]()
@@ -474,12 +474,9 @@ class miniWindow:
             updateRender(const.surfaceFunctions)
 
         elif mouse.clickedOnDown:
-            #if mouse is on x button
             #check input fields
             #check other buttons
             #else: move window.
-            #if mouse is in range of any of the bottom buttons.
-            #if mouse x range is within range of any of the input fields.
             if (self.width - 58) <= mouseX <= self.width - 6:
                 sdl2.SDL_SetRenderDrawColor(const.renderer.sdlrenderer, 183, 31, 112, 255)
                 for entry in self.inputFields:

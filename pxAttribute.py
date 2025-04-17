@@ -31,7 +31,6 @@ filebarSurfaces = [filebar]
 
 running = True
 #MAIN PROGRAM LOOP:
-lastTime = sdl2.SDL_GetTicks()
 while running:
     events = sdl2.ext.get_events()
     for event in events:
@@ -65,6 +64,8 @@ while running:
         #keyboard events:
         elif event.type == sdl2.SDL_QUIT:
             sdl2.SDL_Quit()
+            running = False
+            break
 
         if event.type == sdl2.SDL_KEYDOWN:
             #taking in keyboard input instead of text input (for stuff like esc, return ect.)
